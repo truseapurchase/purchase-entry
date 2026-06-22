@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TruSea Fish — Purchase Entry</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#EEF2F6;
+  --surface:#FFFFFF;
+  --surface2:#F4F7FA;
+  --border:#D0DAE4;
+  --accent:#5A8FAD;
+  --accent-soft:#E3EEF5;
+  --text:#1A2B3C;
+  --muted:#4A6070;
+  --muted2:#8AAABB;
+  --success:#3D8A6E;
+  --success-bg:#E4F3ED;
+  --success-border:#A8D4C2;
+  --warn:#B5623A;
+  --warn-bg:#FDF0E8;
+  --font:'DM Sans',sans-serif;
+}
+html,body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;-webkit-text-size-adjust:100%}
+input,button,select{font-family:var(--font)}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
+input[type=number]{-moz-appearance:textfield}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* HEADER */
+#hdr{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:16px 20px 0;position:sticky;top:0;z-index:50;
+}
+.brand-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:30px;font-weight:700;color:#2E5F80;
+  letter-spacing:0.02em;line-height:1
+}
+.brand-sub{
+  font-size:12px;font-weight:600;color:var(--muted);
+  letter-spacing:0.12em;text-transform:uppercase;margin-top:3px
+}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+
+/* GEO */
+.geo-btn{
+  background:var(--surface2);border:1px dashed var(--border);
+  border-radius:20px;padding:7px 14px;font-size:13px;font-weight:600;
+  color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0
+}
+.geo-btn:hover{border-color:var(--accent);color:var(--accent)}
+.geo-tag{
+  background:#E4F3ED;border:1px solid #A8D4C2;
+  border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;
+  color:#3D8A6E;display:flex;align-items:center;gap:6px;flex-shrink:0
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.pulse-dot{width:7px;height:7px;background:#3D8A6E;border-radius:50%;animation:pulse 1.8s ease-in-out infinite;flex-shrink:0}
+
+/* TABS */
+.tabs{display:flex;gap:2px;margin-top:14px}
+.tab-btn{
+  background:transparent;border:none;border-bottom:3px solid transparent;
+  padding:9px 22px;font-size:14px;font-weight:600;
+  color:var(--muted);cursor:pointer;transition:all .18s
+}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* CONTENT */
+#content{padding:20px 16px 160px;max-width:900px;margin:0 auto;width:100%}
+
+/* CONTROLS */
+.ctrl-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.search-wrap{position:relative;flex:1 1 200px;min-width:160px}
+.search-wrap input{
+  width:100%;padding:10px 12px 10px 36px;
+  border:1px solid var(--border);border-radius:9px;
+  background:var(--surface);font-size:14px;font-weight:500;color:var(--text);
+  outline:none;transition:border .15s;-webkit-appearance:none
+}
+.search-wrap input:focus{border-color:var(--accent)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted2);font-size:15px;pointer-events:none}
+.sort-btn{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:9px;padding:10px 14px;font-size:13px;font-weight:600;
+  color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .15s
+}
+.sort-btn.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.ready-badge{
+  background:#E4F3ED;border:1px solid #A8D4C2;
+  border-radius:20px;padding:5px 13px;font-size:12px;font-weight:700;color:#3D8A6E
+}
+
+/* TABLE CARD */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:13px;overflow:hidden}
+.tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse}
+
+/* Desktop table */
+@media(min-width:600px){
+  table{min-width:600px}
+  th{padding:11px 12px;font-size:11px;font-weight:700;color:var(--muted);
+    letter-spacing:0.07em;text-transform:uppercase;
+    border-bottom:2px solid var(--border);white-space:nowrap;
+    background:var(--surface2);text-align:left}
+  td{padding:8px 10px;border-bottom:1px solid #EBF0F5;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:var(--surface2)}
+  .prod-name{font-size:14px;font-weight:600;color:var(--text);line-height:1.3}
+  .prod-sku{font-size:11px;font-weight:500;color:var(--muted2);margin-top:2px;letter-spacing:0.04em}
+  .tbl-input{
+    width:100%;background:#FAFBFC;border:1px solid var(--border);border-radius:7px;
+    padding:8px 10px;font-size:14px;font-weight:500;color:var(--text);
+    outline:none;transition:border .15s;-webkit-appearance:none
+  }
+  .tbl-input:focus{border-color:var(--accent);background:#fff}
+  .tbl-input.has-prefix{padding-left:20px}
+  .tbl-input.total-ro{
+    background:var(--success-bg);border-color:var(--success-border);
+    color:var(--success);font-weight:700;cursor:default
+  }
+  .prefix-wrap{position:relative}
+  .prefix-wrap .pfx{
+    position:absolute;left:8px;top:50%;transform:translateY(-50%);
+    color:var(--muted2);font-size:12px;font-weight:600;pointer-events:none
+  }
+  .mobile-card{display:none}
+  .desktop-row{display:table-row}
+}
+
+/* MOBILE: card layout per product */
+@media(max-width:599px){
+  thead{display:none}
+  .desktop-row{display:none}
+  .mobile-card{
+    display:block;background:var(--surface);
+    border-bottom:1px solid #EBF0F5;padding:14px 16px
+  }
+  .mobile-card:last-child{border-bottom:none}
+  .mc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+  .mc-name{font-size:15px;font-weight:700;color:var(--text);line-height:1.3;flex:1}
+  .mc-sku{font-size:11px;font-weight:600;color:var(--muted2);margin-top:2px;letter-spacing:0.04em}
+  .mc-total-pill{
+    background:var(--success-bg);border:1px solid var(--success-border);
+    border-radius:20px;padding:4px 12px;font-size:13px;font-weight:700;color:var(--success);
+    white-space:nowrap;margin-left:8px;align-self:flex-start;flex-shrink:0
+  }
+  .mc-total-empty{
+    background:var(--surface2);border:1px solid var(--border);
+    border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--muted2);
+    white-space:nowrap;margin-left:8px;align-self:flex-start;flex-shrink:0
+  }
+  .mc-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mc-field label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;display:block;margin-bottom:4px}
+  .mc-input{
+    width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+    padding:10px 12px;font-size:15px;font-weight:600;color:var(--text);
+    outline:none;transition:border .15s;-webkit-appearance:none;
+    -webkit-tap-highlight-color:transparent
+  }
+  .mc-input:focus{border-color:var(--accent);background:#fff}
+  .mc-contact{grid-column:span 2}
+  .mc-contact .mc-input{font-size:14px;font-weight:500}
+}
+
+/* TABLE FOOTER */
+.tbl-foot{
+  padding:11px 16px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--surface2)
+}
+.row-count{font-size:12px;font-weight:600;color:var(--muted)}
+
+/* FLOATING BOTTOM BAR */
+.float-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:12px 20px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 -4px 20px rgba(0,0,0,0.08)
+}
+.float-total{
+  flex:1;
+  font-size:15px;font-weight:700;color:var(--text)
+}
+.float-total span{
+  display:block;font-size:11px;font-weight:600;
+  color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:1px
+}
+.btn-clear{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:9px;padding:11px 16px;font-size:13px;font-weight:700;
+  color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap
+}
+.btn-clear:hover{border-color:var(--muted);color:var(--text)}
+.btn-save{
+  background:#5A8FAD;border:none;border-radius:9px;
+  padding:11px 22px;font-size:14px;font-weight:700;
+  color:#fff;cursor:pointer;transition:all .15s;
+  box-shadow:0 2px 10px rgba(90,143,173,0.35);white-space:nowrap
+}
+.btn-save:hover{background:#4A7E9C}
+.btn-save:disabled{background:var(--muted2);cursor:wait;box-shadow:none}
+
+/* REPORT TAB */
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:500px){.kpi-grid{grid-template-columns:1fr 1fr}}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:15px 16px}
+.kpi-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:5px}
+.kpi-value{font-size:22px;font-weight:700;color:var(--text)}
+.kpi-sub{font-size:11px;font-weight:500;color:var(--muted);margin-top:3px}
+
+.filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-btn{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;
+  color:var(--muted);cursor:pointer;transition:all .15s
+}
+.filter-btn.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+input[type=date].date-filter{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:6px 10px;font-size:13px;font-weight:500;
+  color:var(--text);outline:none;cursor:pointer
+}
+.refresh-btn{
+  margin-left:auto;background:transparent;border:1px solid var(--border);
+  border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;
+  color:var(--muted);cursor:pointer
+}
+.session-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 14px;background:var(--accent-soft);
+  border-radius:9px;border-left:3px solid var(--accent);margin-bottom:8px
+}
+.session-date{font-weight:700;color:var(--text);font-size:14px}
+.session-week{margin-left:8px;font-size:11px;font-weight:600;color:var(--muted)}
+.session-total{font-size:14px;font-weight:700;color:var(--success)}
+.session-kg{font-size:11px;font-weight:600;color:var(--muted);margin-left:6px}
+
+.rpt-wrap{background:var(--surface);border:1px solid var(--border);border-radius:11px;overflow:hidden;margin-bottom:20px}
+.rpt-wrap th{
+  padding:9px 12px;font-size:11px;font-weight:700;color:var(--muted);
+  letter-spacing:0.06em;text-transform:uppercase;border-bottom:1px solid var(--border);
+  background:var(--surface2);white-space:nowrap
+}
+.rpt-wrap td{padding:9px 12px;font-size:13px;font-weight:500;border-bottom:1px solid #EBF0F5}
+.rpt-wrap tbody tr:last-child td{border-bottom:none}
+
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty-icon{font-size:30px;margin-bottom:8px}
+
+/* TOAST */
+#toast{
+  display:none;position:fixed;bottom:90px;left:50%;
+  transform:translateX(-50%);border-radius:9px;
+  padding:11px 20px;font-size:14px;font-weight:600;
+  z-index:300;white-space:nowrap;
+  box-shadow:0 4px 16px rgba(0,0,0,0.12);
+  max-width:90vw;text-align:center
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="hdr">
+  <div class="hdr-top">
+    <div>
+      <div class="brand-name">TruSea Fish</div>
+      <div class="brand-sub">Purchase Entry</div>
+    </div>
+    <div id="geo-area" style="padding-top:4px"></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab(0)">📦 Purchase Entry</button>
+    <button class="tab-btn" onclick="showTab(1)">📊 Reports</button>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div id="content">
+
+  <!-- TAB 0 -->
+  <div id="tab0">
+    <div class="ctrl-row">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input id="srch" type="text" placeholder="Search fish…" oninput="filterTable()">
+      </div>
+      <button class="sort-btn" id="sort-btn" onclick="toggleSort()">⇅ A–Z</button>
+      <div id="fill-badge" style="display:none" class="ready-badge"></div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="tbl-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="min-width:160px">Product / SKU</th>
+              <th style="width:90px">Qty (kg)</th>
+              <th style="width:105px">Rate / kg</th>
+              <th style="width:110px">Total</th>
+              <th style="width:120px">Seller Contact</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="tbl-foot">
+        <span class="row-count" id="row-count"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1 -->
+  <div id="tab1" style="display:none">
+    <div class="kpi-grid" id="kpi-grid"></div>
+    <div class="filter-row">
+      <button class="filter-btn active" id="f-all" onclick="setFilter('all')">All Time</button>
+      <button class="filter-btn" id="f-week" onclick="setFilter('week')">This Week</button>
+      <button class="filter-btn" id="f-month" onclick="setFilter('month')">This Month</button>
+      <input type="date" class="date-filter" id="f-date" onchange="setFilter('date')">
+      <button class="refresh-btn" onclick="loadReport()">↻ Refresh</button>
+    </div>
+    <div id="report-body"></div>
+  </div>
+
+</div>
+
+<!-- FLOATING BOTTOM BAR -->
+<div class="float-bar" id="float-bar">
+  <div class="float-total">
+    <span>Grand Total</span>
+    <span id="float-amt">₹0</span>
+  </div>
+  <button class="btn-clear" onclick="clearAll()">Clear</button>
+  <button class="btn-save" id="save-btn" onclick="savePurchase()">💾 Save</button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbLzWar6Zkk3Ym0o_v_0k2HDaxY8RusOl9lXs7zF1Kbuov0t3NAYOK5hKu-3cB0W0ykA/exec";
+
+let PRODUCTS   = [];
+let rowData    = {};
+let sortDir    = null;
+let geoData    = null;
+let geoStatus  = 'idle';
+let purchases  = [];
+let currentFilter = 'all';
+let isMobile   = window.innerWidth < 600;
+
+window.addEventListener('resize', () => {
+  const was = isMobile;
+  isMobile = window.innerWidth < 600;
+  if (was !== isMobile) renderTable();
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  loadProducts();
+  renderGeo();
+});
+
+/* ── LOAD PRODUCTS ─────────────────────────────────────────────── */
+async function loadProducts() {
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL + '?action=getProducts');
+    const data = await res.json();
+    PRODUCTS   = data.products || [];
+  } catch(e) {
+    showToast('Could not load products from sheet.', 'error');
+    PRODUCTS = [];
+  }
+  initRowData();
+  renderTable();
+}
+
+function initRowData() {
+  PRODUCTS.forEach(p => {
+    if (!rowData[p.sku]) rowData[p.sku] = {kg:'', perKg:'', total:'', contact:''};
+  });
+}
+
+/* ── RENDER TABLE ──────────────────────────────────────────────── */
+function renderTable() {
+  const vis = getVisible();
+  const tb  = document.getElementById('tbody');
+  tb.innerHTML = '';
+
+  if (!vis.length) {
+    tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">🐟</div>No products match</div></td></tr>`;
+    updateFooter(vis); return;
+  }
+
+  vis.forEach(p => {
+    const r = rowData[p.sku] || {kg:'', perKg:'', total:'', contact:''};
+
+    if (isMobile) {
+      // MOBILE CARD ROW
+      const tr = document.createElement('tr');
+      tr.dataset.sku = p.sku;
+      tr.className   = 'mobile-card';
+      const totDisplay = r.total
+        ? `<div class="mc-total-pill">₹${Number(r.total).toLocaleString('en-IN')}</div>`
+        : `<div class="mc-total-empty">Auto</div>`;
+      tr.innerHTML = `
+        <td colspan="5" style="padding:0">
+          <div style="padding:14px 16px;border-bottom:1px solid #EBF0F5">
+            <div class="mc-head">
+              <div>
+                <div class="mc-name">${p.name}</div>
+                <div class="mc-sku">${p.sku}</div>
+              </div>
+              <div id="total-pill-${p.sku}">${totDisplay}</div>
+            </div>
+            <div class="mc-fields">
+              <div class="mc-field">
+                <label>Qty (kg)</label>
+                <input class="mc-input" type="number" step="any" inputmode="decimal"
+                  placeholder="0.0" value="${r.kg}"
+                  data-sku="${p.sku}" data-field="kg"
+                  onchange="handleChange(this)" onblur="handleChange(this)">
+              </div>
+              <div class="mc-field">
+                <label>Rate / kg (₹)</label>
+                <input class="mc-input" type="number" step="any" inputmode="decimal"
+                  placeholder="0" value="${r.perKg}"
+                  data-sku="${p.sku}" data-field="perKg"
+                  onchange="handleChange(this)" onblur="handleChange(this)">
+              </div>
+              <div class="mc-field mc-contact">
+                <label>Seller Contact</label>
+                <input class="mc-input" type="tel" inputmode="tel"
+                  placeholder="+91 XXXXX" value="${r.contact}"
+                  data-sku="${p.sku}" data-field="contact"
+                  onchange="handleChange(this)" onblur="handleChange(this)">
+              </div>
+            </div>
+          </div>
+        </td>`;
+      tb.appendChild(tr);
+    } else {
+      // DESKTOP ROW
+      const tr = document.createElement('tr');
+      tr.dataset.sku = p.sku;
+      tr.className   = 'desktop-row';
+      tr.innerHTML = `
+        <td>
+          <div class="prod-name">${p.name}</div>
+          <div class="prod-sku">${p.sku}</div>
+        </td>
+        <td style="width:90px">
+          <input class="tbl-input" type="number" step="any" placeholder="0.0"
+            value="${r.kg}" data-sku="${p.sku}" data-field="kg"
+            onchange="handleChange(this)" onblur="handleChange(this)">
+        </td>
+        <td style="width:105px">
+          <div class="prefix-wrap">
+            <span class="pfx">₹</span>
+            <input class="tbl-input has-prefix" type="number" step="any" placeholder="0"
+              value="${r.perKg}" data-sku="${p.sku}" data-field="perKg"
+              onchange="handleChange(this)" onblur="handleChange(this)">
+          </div>
+        </td>
+        <td style="width:110px" id="total-cell-${p.sku}">${makeTotalCell(p.sku, r)}</td>
+        <td style="width:120px">
+          <input class="tbl-input" type="text" inputmode="tel" placeholder="+91 XXXXX"
+            value="${r.contact}" data-sku="${p.sku}" data-field="contact"
+            onchange="handleChange(this)" onblur="handleChange(this)">
+        </td>`;
+      tb.appendChild(tr);
+    }
+  });
+
+  updateFooter(vis);
+  updateBadge();
+  updateFloatTotal();
+}
+
+function makeTotalCell(sku, r) {
+  if (r.total) {
+    return `<div class="prefix-wrap"><span class="pfx" style="color:var(--success)">₹</span>
+      <input class="tbl-input has-prefix total-ro" type="number" value="${r.total}" readonly tabindex="-1"></div>`;
+  }
+  return `<div class="prefix-wrap"><span class="pfx">₹</span>
+    <input class="tbl-input has-prefix" type="number" placeholder="Auto" readonly tabindex="-1" style="cursor:default;color:var(--muted2)"></div>`;
+}
+
+/* ── HANDLE CHANGE — no full re-render ─────────────────────────── */
+function handleChange(el) {
+  const sku   = el.dataset.sku;
+  const field = el.dataset.field;
+  if (!rowData[sku]) rowData[sku] = {kg:'', perKg:'', total:'', contact:''};
+  rowData[sku][field] = el.value;
+
+  if (field === 'kg' || field === 'perKg') {
+    const r   = rowData[sku];
+    const tot = r.kg && r.perKg
+      ? (parseFloat(r.kg) * parseFloat(r.perKg)).toFixed(2) : '';
+    rowData[sku].total = tot;
+
+    if (isMobile) {
+      const pill = document.getElementById('total-pill-' + sku);
+      if (pill) {
+        pill.innerHTML = tot
+          ? `<div class="mc-total-pill">₹${Number(tot).toLocaleString('en-IN')}</div>`
+          : `<div class="mc-total-empty">Auto</div>`;
+      }
+    } else {
+      const cell = document.getElementById('total-cell-' + sku);
+      if (cell) cell.innerHTML = makeTotalCell(sku, rowData[sku]);
+    }
+    updateFloatTotal();
+    updateBadge();
+  }
+}
+
+/* ── FILTER (show/hide rows) ───────────────────────────────────── */
+function filterTable() {
+  const q = document.getElementById('srch').value.toLowerCase();
+  document.querySelectorAll('#tbody tr[data-sku]').forEach(tr => {
+    const sku = tr.dataset.sku;
+    const p   = PRODUCTS.find(x => x.sku === sku);
+    const ok  = !q || (p && (p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)));
+    tr.style.display = ok ? '' : 'none';
+  });
+  updateFooter(getVisible());
+}
+
+/* ── SORT ──────────────────────────────────────────────────────── */
+function toggleSort() {
+  sortDir = sortDir === 'asc' ? 'desc' : sortDir === 'desc' ? null : 'asc';
+  const btn = document.getElementById('sort-btn');
+  btn.textContent = sortDir === 'asc' ? 'A→Z ↑' : sortDir === 'desc' ? 'Z→A ↓' : '⇅ A–Z';
+  btn.classList.toggle('active', !!sortDir);
+  renderTable();
+}
+
+function getVisible() {
+  const q = (document.getElementById('srch')?.value || '').toLowerCase();
+  let v = PRODUCTS.filter(p => !q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
+  if (sortDir === 'asc')  v = [...v].sort((a,b) => a.name.localeCompare(b.name));
+  if (sortDir === 'desc') v = [...v].sort((a,b) => b.name.localeCompare(a.name));
+  return v;
+}
+
+/* ── FOOTER & FLOAT BAR ────────────────────────────────────────── */
+function updateFooter(vis) {
+  document.getElementById('row-count').textContent =
+    `Showing ${vis.length} of ${PRODUCTS.length} products`;
+}
+
+function updateFloatTotal() {
+  const tot = PRODUCTS.reduce((s,p) => s + (parseFloat(rowData[p.sku]?.total)||0), 0);
+  document.getElementById('float-amt').textContent =
+    tot > 0 ? '₹' + tot.toLocaleString('en-IN') : '₹0';
+}
+
+function updateBadge() {
+  const n = PRODUCTS.filter(p => rowData[p.sku]?.total).length;
+  const b = document.getElementById('fill-badge');
+  b.style.display = n > 0 ? 'inline-block' : 'none';
+  b.textContent   = `${n} item${n > 1 ? 's' : ''} ready`;
+}
+
+/* ── GEO ───────────────────────────────────────────────────────── */
+function captureGeo() {
+  if (!navigator.geolocation) { geoStatus='error'; renderGeo(); return; }
+  geoStatus = 'loading'; renderGeo();
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      geoData = {lat: pos.coords.latitude.toFixed(5), lng: pos.coords.longitude.toFixed(5)};
+      geoStatus = 'done'; renderGeo();
+    },
+    () => { geoStatus = 'error'; renderGeo(); },
+    {enableHighAccuracy:true, timeout:10000}
+  );
+}
+
+function renderGeo() {
+  const area = document.getElementById('geo-area');
+  if (geoStatus === 'done' && geoData) {
+    area.innerHTML = `<div class="geo-tag"><span class="pulse-dot"></span>📍 ${geoData.lat}, ${geoData.lng}</div>`;
+  } else if (geoStatus === 'loading') {
+    area.innerHTML = `<span style="font-size:12px;font-weight:600;color:var(--muted)">Locating…</span>`;
+  } else if (geoStatus === 'error') {
+    area.innerHTML = `<span style="font-size:12px;font-weight:600;color:var(--warn)">Location unavailable</span>`;
+  } else {
+    area.innerHTML = `<button class="geo-btn" onclick="captureGeo()">📍 Capture Location</button>`;
+  }
+}
+
+/* ── SAVE ──────────────────────────────────────────────────────── */
+async function savePurchase() {
+  const filled = PRODUCTS.filter(p => rowData[p.sku]?.kg || rowData[p.sku]?.total);
+  if (!filled.length) { showToast('Enter at least one product detail before saving.','error'); return; }
+
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  const ts  = new Date().toISOString();
+  const loc = geoData ? `${geoData.lat},${geoData.lng}` : '';
+  const payload = filled.map(p => ({
+    timestamp: ts,
+    date: new Date().toLocaleDateString('en-IN'),
+    product: p.name, sku: p.sku,
+    kg: rowData[p.sku].kg,
+    perKg: rowData[p.sku].perKg,
+    total: rowData[p.sku].total,
+    contact: rowData[p.sku].contact,
+    location: loc
+  }));
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({action:'savePurchase', rows: payload})
+    });
+    purchases = [...purchases, ...payload];
+    showToast(`${payload.length} item(s) saved to Google Sheet! ✓`, 'success');
+    clearAll();
+  } catch(e) {
+    showToast('Save failed. Check your connection.', 'error');
+  }
+  btn.disabled = false; btn.textContent = '💾 Save';
+}
+
+function clearAll() {
+  PRODUCTS.forEach(p => { rowData[p.sku] = {kg:'', perKg:'', total:'', contact:''}; });
+  renderTable();
+}
+
+/* ── TABS ──────────────────────────────────────────────────────── */
+function showTab(n) {
+  document.getElementById('tab0').style.display = n===0 ? 'block' : 'none';
+  document.getElementById('tab1').style.display = n===1 ? 'block' : 'none';
+  document.getElementById('float-bar').style.display = n===0 ? 'flex' : 'none';
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===n));
+  if (n===1) renderReport();
+}
+
+/* ── REPORT ────────────────────────────────────────────────────── */
+async function loadReport() {
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL + '?action=getReport');
+    const data = await res.json();
+    purchases  = data.rows || [];
+    renderReport();
+  } catch(e) {
+    showToast('Could not load report data.', 'error');
+  }
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  ['all','week','month'].forEach(k => {
+    const b = document.getElementById('f-'+k);
+    if (b) b.classList.toggle('active', k===f);
+  });
+  renderReport();
+}
+
+function getFilteredPurchases() {
+  const now = new Date();
+  return purchases.filter(p => {
+    const d = new Date(p.timestamp||p.date);
+    if (currentFilter==='week')  return d >= new Date(now-7*864e5);
+    if (currentFilter==='month') return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+    if (currentFilter==='date') {
+      const sel = document.getElementById('f-date').value;
+      if (sel) return d.toDateString()===new Date(sel).toDateString();
+    }
+    return true;
+  });
+}
+
+function renderReport() {
+  const fp         = getFilteredPurchases();
+  const totalSpend = fp.reduce((s,p) => s+Number(p.total||0), 0);
+  const totalKg    = fp.reduce((s,p) => s+Number(p.kg||0),    0);
+
+  const grouped = {};
+  fp.forEach(p => {
+    const d  = new Date(p.timestamp||p.date);
+    const dk = d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+    const sk = dk+'_'+Math.floor(d.getTime()/(2*60*1000));
+    if (!grouped[sk]) grouped[sk]={label:dk,rows:[]};
+    grouped[sk].rows.push(p);
+  });
+
+  document.getElementById('kpi-grid').innerHTML = [
+    {l:'Total Spent',     v:'₹'+totalSpend.toLocaleString('en-IN'), s:`${fp.length} line items`},
+    {l:'Total Purchased', v:totalKg.toFixed(1)+' kg',               s:'across all fish'},
+    {l:'Sessions',        v:Object.keys(grouped).length||0,          s:'purchase trips'},
+  ].map(k=>`<div class="kpi-card">
+    <div class="kpi-label">${k.l}</div>
+    <div class="kpi-value">${k.v}</div>
+    <div class="kpi-sub">${k.s}</div>
+  </div>`).join('');
+
+  const rb = document.getElementById('report-body');
+  if (!fp.length) {
+    rb.innerHTML=`<div class="empty"><div class="empty-icon">🐟</div><strong>No purchase data for this period</strong><br><span style="font-size:13px">Save a purchase entry to see it here.</span></div>`;
+    return;
+  }
+
+  rb.innerHTML = Object.values(grouped).map(({label,rows:rws}) => {
+    const st = rws.reduce((s,r)=>s+Number(r.total||0),0);
+    const sk = rws.reduce((s,r)=>s+Number(r.kg||0),0);
+    const wk = getWeekNum(new Date(rws[0].timestamp||rws[0].date));
+    return `<div>
+      <div class="session-hdr">
+        <div><span class="session-date">${label}</span><span class="session-week">Week ${wk}</span></div>
+        <div><span class="session-total">₹${st.toLocaleString('en-IN')}</span><span class="session-kg">${sk.toFixed(1)} kg</span></div>
+      </div>
+      <div class="rpt-wrap"><div style="overflow-x:auto"><table style="min-width:480px;width:100%;border-collapse:collapse">
+        <thead><tr>
+          <th>Product</th><th>SKU</th><th>Qty (kg)</th>
+          <th>Rate/kg</th><th>Total</th><th>Seller</th><th>Location</th>
+        </tr></thead>
+        <tbody>${rws.map(r=>`<tr>
+          <td style="font-weight:700">${r.product}</td>
+          <td style="color:var(--muted2);font-size:11px">${r.sku}</td>
+          <td style="font-weight:600">${r.kg} kg</td>
+          <td style="font-weight:600">₹${Number(r.perKg).toLocaleString('en-IN')}</td>
+          <td style="color:var(--success);font-weight:700">₹${Number(r.total).toLocaleString('en-IN')}</td>
+          <td style="color:var(--muted);font-weight:500">${r.contact||'—'}</td>
+          <td style="font-size:11px;color:var(--accent);font-weight:500">${r.location?'📍 '+r.location:'—'}</td>
+        </tr>`).join('')}</tbody>
+      </table></div></div>
+    </div>`;
+  }).join('');
+}
+
+/* ── UTILS ─────────────────────────────────────────────────────── */
+function getWeekNum(d) {
+  const j=new Date(d.getFullYear(),0,1);
+  return Math.ceil(((d-j)/864e5+j.getDay()+1)/7);
+}
+function showToast(msg, type) {
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.background = type==='success'?'#E4F3ED':'#FDF0E8';
+  t.style.border      = `1px solid ${type==='success'?'#A8D4C2':'#F0B99A'}`;
+  t.style.color       = type==='success'?'#2D7A5E':'#B5623A';
+  t.style.display     = 'block';
+  setTimeout(()=>t.style.display='none', 3500);
+}
+</script>
+</body>
+</html>
