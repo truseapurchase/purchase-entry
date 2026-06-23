@@ -264,6 +264,63 @@ input[type=date].date-filter{
   box-shadow:0 4px 16px rgba(0,0,0,0.12);
   max-width:90vw;text-align:center
 }
+
+/* SELLING PRICE ANALYSIS TAB */
+.spa-wrap{background:var(--surface);border:1px solid var(--border);border-radius:13px;overflow:hidden}
+.spa-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.spa-table{width:100%;border-collapse:collapse;min-width:560px}
+.spa-table thead tr{background:var(--surface2)}
+.spa-table th{
+  padding:11px 14px;font-size:11px;font-weight:700;color:var(--muted);
+  letter-spacing:0.07em;text-transform:uppercase;
+  border-bottom:2px solid var(--border);white-space:nowrap;text-align:left
+}
+.spa-table td{padding:9px 12px;border-bottom:1px solid #EBF0F5;vertical-align:middle;font-size:14px;font-weight:500}
+.spa-table tbody tr:last-child td{border-bottom:none}
+.spa-table tbody tr:hover{background:var(--surface2)}
+.spa-fish-name{font-size:14px;font-weight:700;color:var(--text);line-height:1.3}
+.spa-sku{font-size:11px;font-weight:600;color:var(--muted2);margin-top:2px;letter-spacing:0.04em}
+.spa-input{
+  width:100%;background:#FAFBFC;border:1px solid var(--border);border-radius:7px;
+  padding:8px 10px 8px 20px;font-size:14px;font-weight:600;color:var(--text);
+  outline:none;transition:border .15s;-webkit-appearance:none
+}
+.spa-input:focus{border-color:var(--accent);background:#fff}
+.spa-pfx-wrap{position:relative}
+.spa-pfx{position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:600;color:var(--muted2);pointer-events:none}
+.diff-pill{
+  display:inline-block;border-radius:20px;
+  padding:4px 12px;font-size:13px;font-weight:700;white-space:nowrap
+}
+.diff-profit{background:#E4F3ED;color:#2D7A5E;border:1px solid #A8D4C2}
+.diff-loss{background:#FDF0E8;color:#B5623A;border:1px solid #F0B99A}
+.diff-zero{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.margin-bar-wrap{width:80px;height:8px;background:#EBF0F5;border-radius:4px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:6px}
+.margin-bar{height:100%;border-radius:4px;transition:width .3s}
+
+/* SPA mobile card */
+@media(max-width:599px){
+  .spa-table{min-width:unset}
+  .spa-table thead{display:none}
+  .spa-table tbody tr{display:block;border-bottom:1px solid #EBF0F5;padding:14px 16px}
+  .spa-table tbody tr:hover{background:var(--surface2)}
+  .spa-table td{display:block;padding:0;border:none}
+  .spa-mobile-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .spa-mobile-field label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;display:block;margin-bottom:4px}
+  .spa-mobile-diff{margin-top:10px}
+}
+
+/* SPA summary bar */
+.spa-summary{
+  display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px
+}
+.spa-sum-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:13px 16px;flex:1 1 140px;min-width:120px
+}
+.spa-sum-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:4px}
+.spa-sum-value{font-size:20px;font-weight:700;color:var(--text)}
+.spa-sum-sub{font-size:11px;font-weight:500;color:var(--muted);margin-top:2px}
 </style>
 </head>
 <body>
@@ -280,6 +337,7 @@ input[type=date].date-filter{
   <div class="tabs">
     <button class="tab-btn active" onclick="showTab(0)">📦 Purchase Entry</button>
     <button class="tab-btn" onclick="showTab(1)">📊 Reports</button>
+    <button class="tab-btn" onclick="showTab(2)">💰 Selling Price</button>
   </div>
 </div>
 
@@ -331,6 +389,40 @@ input[type=date].date-filter{
     <div id="report-body"></div>
   </div>
 
+  <!-- TAB 2: SELLING PRICE ANALYSIS -->
+  <div id="tab2" style="display:none">
+    <div class="ctrl-row">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input id="spa-srch" type="text" placeholder="Search fish or SKU…" oninput="filterSPA()">
+      </div>
+      <button class="refresh-btn" style="border-radius:9px;padding:10px 14px;font-size:13px;font-weight:600" onclick="loadSPA()">↻ Reload</button>
+    </div>
+    <!-- Summary cards -->
+    <div class="spa-summary" id="spa-summary"></div>
+    <!-- Table -->
+    <div class="spa-wrap">
+      <div class="spa-scroll">
+        <table class="spa-table">
+          <thead>
+            <tr>
+              <th style="min-width:160px">Fish Name / SKU</th>
+              <th style="width:115px">Purchase Price</th>
+              <th style="width:120px">Selling Price</th>
+              <th style="width:130px">Difference</th>
+              <th style="width:120px">Margin %</th>
+            </tr>
+          </thead>
+          <tbody id="spa-tbody"></tbody>
+        </table>
+      </div>
+      <div class="tbl-foot">
+        <span class="row-count" id="spa-row-count"></span>
+        <span style="font-size:13px;font-weight:700;color:var(--success)" id="spa-avg-margin"></span>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- FLOATING BOTTOM BAR -->
@@ -356,6 +448,10 @@ let geoStatus  = 'idle';
 let purchases  = [];
 let currentFilter = 'all';
 let isMobile   = window.innerWidth < 600;
+
+// Selling Price Analysis state
+let SPA_PRODUCTS = [];   // [{name, sku, purchasePrice}]
+let spaData      = {};   // {sku: sellingPrice}
 
 window.addEventListener('resize', () => {
   const was = isMobile;
@@ -641,9 +737,11 @@ function clearAll() {
 function showTab(n) {
   document.getElementById('tab0').style.display = n===0 ? 'block' : 'none';
   document.getElementById('tab1').style.display = n===1 ? 'block' : 'none';
+  document.getElementById('tab2').style.display = n===2 ? 'block' : 'none';
   document.getElementById('float-bar').style.display = n===0 ? 'flex' : 'none';
   document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===n));
   if (n===1) renderReport();
+  if (n===2) loadSPA();
 }
 
 /* ── REPORT ────────────────────────────────────────────────────── */
@@ -737,6 +835,203 @@ function renderReport() {
       </table></div></div>
     </div>`;
   }).join('');
+}
+
+/* ── SELLING PRICE ANALYSIS ────────────────────────────────────── */
+async function loadSPA() {
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL + '?action=getSPAProducts');
+    const data = await res.json();
+    SPA_PRODUCTS = data.products || [];
+  } catch(e) {
+    // fallback: build from PRODUCTS with no purchase price
+    SPA_PRODUCTS = PRODUCTS.map(p => ({name:p.name, sku:p.sku, purchasePrice: p.purchasePrice||''}));
+  }
+  // init spaData for any new SKUs
+  SPA_PRODUCTS.forEach(p => { if (spaData[p.sku] === undefined) spaData[p.sku] = ''; });
+  renderSPA();
+}
+
+function filterSPA() {
+  const q = document.getElementById('spa-srch').value.toLowerCase();
+  document.querySelectorAll('#spa-tbody tr[data-sku]').forEach(tr => {
+    const sku = tr.dataset.sku;
+    const p   = SPA_PRODUCTS.find(x => x.sku === sku);
+    const ok  = !q || (p && (p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)));
+    tr.style.display = ok ? '' : 'none';
+  });
+  updateSPASummary();
+}
+
+function handleSPAChange(el) {
+  const sku = el.dataset.sku;
+  spaData[sku] = el.value;
+  // update diff + margin cells only — no full re-render
+  updateSPARow(sku);
+  updateSPASummary();
+}
+
+function updateSPARow(sku) {
+  const p   = SPA_PRODUCTS.find(x => x.sku === sku);
+  if (!p) return;
+  const pp  = parseFloat(p.purchasePrice) || 0;
+  const sp  = parseFloat(spaData[sku])    || 0;
+  const diff = sp - pp;
+  const margin = pp > 0 ? ((diff / pp) * 100) : null;
+
+  const diffCell   = document.getElementById('spa-diff-'   + sku);
+  const marginCell = document.getElementById('spa-margin-' + sku);
+  if (!diffCell || !marginCell) return;
+
+  if (!sp) {
+    diffCell.innerHTML   = `<span class="diff-pill diff-zero">—</span>`;
+    marginCell.innerHTML = `<span style="color:var(--muted2);font-weight:600">—</span>`;
+    return;
+  }
+
+  const isProfit = diff >= 0;
+  const sign     = diff >= 0 ? '+' : '';
+  diffCell.innerHTML = `<span class="diff-pill ${isProfit?'diff-profit':'diff-loss'}">${sign}₹${Math.abs(diff).toLocaleString('en-IN')}</span>`;
+
+  if (margin !== null) {
+    const pct    = Math.min(Math.abs(margin), 100);
+    const barClr = isProfit ? '#3D8A6E' : '#B5623A';
+    marginCell.innerHTML = `
+      <span style="font-size:13px;font-weight:700;color:${isProfit?'var(--success)':'var(--warn)'}">${sign}${margin.toFixed(1)}%</span>
+      <span class="margin-bar-wrap"><span class="margin-bar" style="width:${pct}%;background:${barClr}"></span></span>`;
+  }
+}
+
+function renderSPA() {
+  const tb = document.getElementById('spa-tbody');
+  tb.innerHTML = '';
+
+  if (!SPA_PRODUCTS.length) {
+    tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">🐟</div>No products loaded. Check your sheet.</div></td></tr>`;
+    return;
+  }
+
+  SPA_PRODUCTS.forEach(p => {
+    const pp  = parseFloat(p.purchasePrice) || 0;
+    const sp  = parseFloat(spaData[p.sku])  || 0;
+    const diff = sp - pp;
+    const margin = pp > 0 && sp > 0 ? ((diff / pp) * 100) : null;
+    const isProfit = diff >= 0;
+    const sign = diff >= 0 ? '+' : '';
+
+    const diffHTML = sp
+      ? `<span class="diff-pill ${isProfit?'diff-profit':'diff-loss'}">${sign}₹${Math.abs(diff).toLocaleString('en-IN')}</span>`
+      : `<span class="diff-pill diff-zero">—</span>`;
+
+    const marginHTML = (margin !== null && sp)
+      ? `<span style="font-size:13px;font-weight:700;color:${isProfit?'var(--success)':'var(--warn)'}">${sign}${margin.toFixed(1)}%</span>
+         <span class="margin-bar-wrap"><span class="margin-bar" style="width:${Math.min(Math.abs(margin),100)}%;background:${isProfit?'#3D8A6E':'#B5623A'}"></span></span>`
+      : `<span style="color:var(--muted2);font-weight:600">—</span>`;
+
+    if (isMobile) {
+      const tr = document.createElement('tr');
+      tr.dataset.sku = p.sku;
+      tr.innerHTML = `<td colspan="5" style="padding:0">
+        <div style="padding:14px 16px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+            <div>
+              <div class="spa-fish-name">${p.name}</div>
+              <div class="spa-sku">${p.sku}</div>
+            </div>
+            <div id="spa-diff-${p.sku}" style="margin-left:8px;flex-shrink:0">${diffHTML}</div>
+          </div>
+          <div class="spa-mobile-row">
+            <div class="spa-mobile-field">
+              <label>Purchase Price</label>
+              <div class="spa-pfx-wrap">
+                <span class="spa-pfx">₹</span>
+                <input class="spa-input" type="number" value="${pp||''}" readonly tabindex="-1"
+                  style="background:var(--surface2);color:var(--muted);cursor:default">
+              </div>
+            </div>
+            <div class="spa-mobile-field">
+              <label>Selling Price</label>
+              <div class="spa-pfx-wrap">
+                <span class="spa-pfx">₹</span>
+                <input class="spa-input" type="number" inputmode="decimal" step="any"
+                  placeholder="Enter" value="${spaData[p.sku]||''}"
+                  data-sku="${p.sku}"
+                  onchange="handleSPAChange(this)" onblur="handleSPAChange(this)">
+              </div>
+            </div>
+          </div>
+          <div class="spa-mobile-diff" id="spa-margin-${p.sku}">${marginHTML}</div>
+        </div>
+      </td>`;
+      tb.appendChild(tr);
+    } else {
+      const tr = document.createElement('tr');
+      tr.dataset.sku = p.sku;
+      tr.innerHTML = `
+        <td>
+          <div class="spa-fish-name">${p.name}</div>
+          <div class="spa-sku">${p.sku}</div>
+        </td>
+        <td>
+          <div class="spa-pfx-wrap">
+            <span class="spa-pfx">₹</span>
+            <input class="spa-input" type="number" value="${pp||''}" readonly tabindex="-1"
+              style="background:var(--surface2);color:var(--muted);cursor:default;border-color:var(--border)">
+          </div>
+        </td>
+        <td>
+          <div class="spa-pfx-wrap">
+            <span class="spa-pfx" style="color:var(--accent)">₹</span>
+            <input class="spa-input" type="number" inputmode="decimal" step="any"
+              placeholder="Enter price" value="${spaData[p.sku]||''}"
+              data-sku="${p.sku}"
+              onchange="handleSPAChange(this)" onblur="handleSPAChange(this)"
+              style="border-color:${spaData[p.sku]?'var(--accent)':'var(--border)'}">
+          </div>
+        </td>
+        <td id="spa-diff-${p.sku}">${diffHTML}</td>
+        <td id="spa-margin-${p.sku}">${marginHTML}</td>`;
+      tb.appendChild(tr);
+    }
+  });
+
+  updateSPASummary();
+  document.getElementById('spa-row-count').textContent =
+    `${SPA_PRODUCTS.length} product${SPA_PRODUCTS.length!==1?'s':''}`;
+}
+
+function updateSPASummary() {
+  const q = (document.getElementById('spa-srch')?.value||'').toLowerCase();
+  const visible = SPA_PRODUCTS.filter(p =>
+    !q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)
+  );
+  const filled  = visible.filter(p => spaData[p.sku]);
+  const margins = filled
+    .map(p => {
+      const pp = parseFloat(p.purchasePrice)||0;
+      const sp = parseFloat(spaData[p.sku])||0;
+      return pp > 0 ? ((sp-pp)/pp*100) : null;
+    })
+    .filter(m => m !== null);
+
+  const avgMargin  = margins.length ? margins.reduce((a,b)=>a+b,0)/margins.length : null;
+  const profitable = margins.filter(m => m > 0).length;
+  const totalSP    = filled.reduce((s,p) => s+(parseFloat(spaData[p.sku])||0), 0);
+  const totalPP    = filled.reduce((s,p) => s+(parseFloat(p.purchasePrice)||0), 0);
+
+  document.getElementById('spa-summary').innerHTML = [
+    {l:'Products Priced', v:`${filled.length} / ${visible.length}`,      s:'selling price entered'},
+    {l:'Avg Margin',      v: avgMargin!==null ? (avgMargin>=0?'+':'')+avgMargin.toFixed(1)+'%' : '—', s:'across priced items'},
+    {l:'Profitable',      v: margins.length ? `${profitable} / ${margins.length}` : '—', s:'above purchase cost'},
+    {l:'Total Markup',    v: totalSP>0 ? '₹'+(totalSP-totalPP).toLocaleString('en-IN') : '—', s:'revenue vs cost'},
+  ].map(k=>`<div class="spa-sum-card">
+    <div class="spa-sum-label">${k.l}</div>
+    <div class="spa-sum-value">${k.v}</div>
+    <div class="spa-sum-sub">${k.s}</div>
+  </div>`).join('');
+
+  document.getElementById('spa-avg-margin').textContent =
+    avgMargin !== null ? `Avg Margin: ${avgMargin>=0?'+':''}${avgMargin.toFixed(1)}%` : '';
 }
 
 /* ── UTILS ─────────────────────────────────────────────────────── */
