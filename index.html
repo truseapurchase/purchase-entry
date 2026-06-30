@@ -353,6 +353,34 @@ input[type=date].date-filter{
 .pa-fish-name{font-size:14px;font-weight:700;color:var(--text);line-height:1.3}
 .pa-sku{font-size:11px;font-weight:600;color:var(--muted2);margin-top:1px;letter-spacing:0.04em}
 .pa-no-price{font-size:12px;color:var(--muted2);font-weight:500}
+
+/* PASSWORD LOCK SCREEN */
+.lock-screen{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:60px 24px;
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  margin-top:8px
+}
+.lock-icon{font-size:36px;margin-bottom:14px;opacity:0.85}
+.lock-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px}
+.lock-sub{font-size:13px;font-weight:500;color:var(--muted);margin-bottom:22px}
+.lock-input-row{display:flex;gap:8px;width:100%;max-width:320px}
+.lock-input{
+  flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:9px;
+  padding:11px 14px;font-size:15px;font-weight:600;color:var(--text);
+  outline:none;transition:border .15s;-webkit-appearance:none
+}
+.lock-input:focus{border-color:var(--accent)}
+.lock-btn{
+  background:#5A8FAD;border:none;border-radius:9px;
+  padding:11px 20px;font-size:14px;font-weight:700;color:#fff;
+  cursor:pointer;white-space:nowrap;transition:all .15s
+}
+.lock-btn:hover{background:#4A7E9C}
+.lock-error{
+  margin-top:12px;font-size:13px;font-weight:600;color:var(--warn);
+  min-height:18px
+}
 </style>
 </head>
 <body>
@@ -409,17 +437,30 @@ input[type=date].date-filter{
     </div>
   </div>
 
-  <!-- TAB 1 -->
+  <!-- TAB 1: REPORTS (password protected) -->
   <div id="tab1" style="display:none">
-    <div class="kpi-grid" id="kpi-grid"></div>
-    <div class="filter-row">
-      <button class="filter-btn active" id="f-all" onclick="setFilter('all')">All Time</button>
-      <button class="filter-btn" id="f-week" onclick="setFilter('week')">This Week</button>
-      <button class="filter-btn" id="f-month" onclick="setFilter('month')">This Month</button>
-      <input type="date" class="date-filter" id="f-date" onchange="setFilter('date')">
-      <button class="refresh-btn" onclick="loadReport()">↻ Refresh</button>
+    <div id="tab1-lock" class="lock-screen">
+      <div class="lock-icon">🔒</div>
+      <div class="lock-title">Reports — Restricted Access</div>
+      <div class="lock-sub">This section is only for authorized members</div>
+      <div class="lock-input-row">
+        <input type="password" id="tab1-pw" placeholder="Enter password" class="lock-input"
+          onkeypress="if(event.key==='Enter')checkUnlock(1)">
+        <button class="lock-btn" onclick="checkUnlock(1)">Unlock</button>
+      </div>
+      <div class="lock-error" id="tab1-err"></div>
     </div>
-    <div id="report-body"></div>
+    <div id="tab1-content" style="display:none">
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <div class="filter-row">
+        <button class="filter-btn active" id="f-all" onclick="setFilter('all')">All Time</button>
+        <button class="filter-btn" id="f-week" onclick="setFilter('week')">This Week</button>
+        <button class="filter-btn" id="f-month" onclick="setFilter('month')">This Month</button>
+        <input type="date" class="date-filter" id="f-date" onchange="setFilter('date')">
+        <button class="refresh-btn" onclick="loadReport()">↻ Refresh</button>
+      </div>
+      <div id="report-body"></div>
+    </div>
   </div>
 
   <!-- TAB 2: SELLING PRICE ENTRY -->
@@ -451,35 +492,48 @@ input[type=date].date-filter{
     </div>
   </div>
 
-  <!-- TAB 3: PRICE ANALYSIS (read-only dashboard) -->
+  <!-- TAB 3: PRICE ANALYSIS (password protected, read-only dashboard) -->
   <div id="tab3" style="display:none">
-    <div class="pa-kpi-grid" id="pa-kpi-grid"></div>
-    <div class="ctrl-row">
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input id="pa-srch" type="text" placeholder="Search fish or SKU…" oninput="renderPA()">
+    <div id="tab3-lock" class="lock-screen">
+      <div class="lock-icon">🔒</div>
+      <div class="lock-title">Price Analysis — Restricted Access</div>
+      <div class="lock-sub">This section is only for authorized members</div>
+      <div class="lock-input-row">
+        <input type="password" id="tab3-pw" placeholder="Enter password" class="lock-input"
+          onkeypress="if(event.key==='Enter')checkUnlock(3)">
+        <button class="lock-btn" onclick="checkUnlock(3)">Unlock</button>
       </div>
-      <button class="sort-btn" id="pa-price-sort-btn" onclick="togglePriceSort()">⇅ Price: Low–High</button>
-      <button class="refresh-btn" style="border-radius:9px;padding:10px 14px;font-size:13px;font-weight:600" onclick="loadPA()">↻ Reload</button>
+      <div class="lock-error" id="tab3-err"></div>
     </div>
-    <div class="pa-wrap">
-      <div class="pa-scroll">
-        <table class="pa-table">
-          <thead>
-            <tr>
-              <th style="min-width:160px">Fish Name / SKU</th>
-              <th style="width:115px">Purchase Price</th>
-              <th style="width:120px">Selling Price</th>
-              <th style="width:130px">Difference</th>
-              <th style="width:120px">Margin %</th>
-            </tr>
-          </thead>
-          <tbody id="pa-tbody"></tbody>
-        </table>
+    <div id="tab3-content" style="display:none">
+      <div class="pa-kpi-grid" id="pa-kpi-grid"></div>
+      <div class="ctrl-row">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input id="pa-srch" type="text" placeholder="Search fish or SKU…" oninput="renderPA()">
+        </div>
+        <button class="sort-btn" id="pa-price-sort-btn" onclick="togglePriceSort()">⇅ Price: Low–High</button>
+        <button class="refresh-btn" style="border-radius:9px;padding:10px 14px;font-size:13px;font-weight:600" onclick="loadPA()">↻ Reload</button>
       </div>
-      <div class="tbl-foot">
-        <span class="row-count" id="pa-row-count"></span>
-        <span style="font-size:13px;font-weight:700;color:var(--success)" id="pa-avg-margin"></span>
+      <div class="pa-wrap">
+        <div class="pa-scroll">
+          <table class="pa-table">
+            <thead>
+              <tr>
+                <th style="min-width:160px">Fish Name / SKU</th>
+                <th style="width:115px">Purchase Price</th>
+                <th style="width:120px">Selling Price</th>
+                <th style="width:130px">Difference</th>
+                <th style="width:120px">Margin %</th>
+              </tr>
+            </thead>
+            <tbody id="pa-tbody"></tbody>
+          </table>
+        </div>
+        <div class="tbl-foot">
+          <span class="row-count" id="pa-row-count"></span>
+          <span style="font-size:13px;font-weight:700;color:var(--success)" id="pa-avg-margin"></span>
+        </div>
       </div>
     </div>
   </div>
@@ -812,10 +866,54 @@ function showTab(n) {
   document.getElementById('float-bar').style.display    = n===0 ? 'flex' : 'none';
   document.getElementById('sp-float-bar').style.display  = n===2 ? 'flex' : 'none';
   document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===n));
-  if (n===1) renderReport();
+
+  if (n===1) { if (isUnlocked(1)) renderReport(); }
   if (n===2) loadSP();
-  if (n===3) loadPA();
+  if (n===3) { if (isUnlocked(3)) loadPA(); }
 }
+
+/* ── PASSWORD PROTECTION (Reports + Price Analysis) ──────────────
+   Simple client-side gate — good enough to keep casual viewers out.
+   Change TAB_PASSWORDS below to set your own password(s).
+------------------------------------------------------------------ */
+const TAB_PASSWORDS = {
+  1: "oceanfish26",   // Reports tab password
+  3: "oceanfish26",   // Price Analysis tab password
+};
+
+function isUnlocked(tabNum) {
+  return sessionStorage.getItem('unlocked_tab_' + tabNum) === 'yes';
+}
+
+function checkUnlock(tabNum) {
+  const pwInput = document.getElementById('tab' + tabNum + '-pw');
+  const errEl   = document.getElementById('tab' + tabNum + '-err');
+  const entered = pwInput.value.trim();
+
+  if (entered === TAB_PASSWORDS[tabNum]) {
+    sessionStorage.setItem('unlocked_tab_' + tabNum, 'yes');
+    document.getElementById('tab' + tabNum + '-lock').style.display = 'none';
+    document.getElementById('tab' + tabNum + '-content').style.display = 'block';
+    errEl.textContent = '';
+    pwInput.value = '';
+    if (tabNum === 1) renderReport();
+    if (tabNum === 3) loadPA();
+  } else {
+    errEl.textContent = 'Incorrect password. Try again.';
+    pwInput.value = '';
+    pwInput.focus();
+  }
+}
+
+// On load, restore unlock state from session (so refresh within same tab doesn't re-lock)
+window.addEventListener('DOMContentLoaded', () => {
+  [1, 3].forEach(n => {
+    if (isUnlocked(n)) {
+      document.getElementById('tab' + n + '-lock').style.display = 'none';
+      document.getElementById('tab' + n + '-content').style.display = 'block';
+    }
+  });
+});
 
 /* ── REPORT ────────────────────────────────────────────────────── */
 async function loadReport() {
